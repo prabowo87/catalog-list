@@ -1,0 +1,6 @@
+framework module Pods_CatalogList {
+  umbrella header "Pods-CatalogList-umbrella.h"
+
+  export *
+  module * { export * }
+}
