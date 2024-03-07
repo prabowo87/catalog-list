@@ -7,8 +7,7 @@ target 'CatalogList' do
 
   # Pods for CatalogList
   pod 'URLImage'
-  pod 'MaterialComponents/Snackbar','124.2.0'
-  pod 'Alamofire', '~> 5.1'
+  
 
   target 'CatalogListTests' do
     inherit! :search_paths

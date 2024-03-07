@@ -12,6 +12,7 @@ import SwiftData
 struct MainView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var localData: [FavoriteSwiftData]
+    @EnvironmentObject var homeVM: HomeViewModel
     let iconSizeSearch : CGFloat = 24
     let screenWidth = UIScreen.main.bounds.width/2 - 32
 //    @ObservedObject var homeViewModel = HomeViewModel()
@@ -25,14 +26,15 @@ struct MainView: View {
                 ToolbarView(hasNavigation: false)
                 SearchView()
                 GeometryReader { geometry in
-                            if case .LOADING = someVM.currentState {
+                    if case .LOADING = someVM.currentState {
                                 LoaderView()
-                            } else if case .SUCCESS(let products) = someVM.currentState {
+                    } else if case .SUCCESS(_) = someVM.currentState {
 //                                List(products) { product in
-                                productItemGrid(products: someVM.bindingValue, total: someVM.bindingValue.count )
+                        productItemGrid(products: someVM.bindingValue, total: someVM.bindingValue.count )
+                            
 //                                        .frame(width: geometry.size.width, height: 120)
 //                                }
-                            } else if case .FAILURE(let error) = someVM.currentState {
+                    } else if case .FAILURE(let error) = someVM.currentState {
                                 VStack(alignment: .center) {
                                     Spacer()
                                     Text(error)
@@ -46,14 +48,22 @@ struct MainView: View {
                 
                 Spacer()
                 
-            }.navigationBarTitle("").navigationBarHidden(true)
+            }
+            .navigationBarTitle("")
+            .navigationBarHidden(true)
+            .onAppear {
+                someVM.refresh()
+            }
+            .onDisappear {
+                print("ContentView disappeared!")
+            }
         }
     }
     private func updateFavorite(id: Int,productModelPos: Int) {
         var position : Int = 0
         localData.forEach { movie in
             if id == movie.id {
-                let dataApi: () = someVM.updateFavorite (position: productModelPos, isFavorite: true)
+                let _: () = someVM.updateFavorite (position: productModelPos, isFavorite: true)
             }
             
             position+=1

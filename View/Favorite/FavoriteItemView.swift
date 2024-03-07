@@ -1,21 +1,21 @@
 //
-//  ProductItemRowView.swift
+//  FavoriteItemView.swift
 //  CatalogList
 //
-//  Created by Hermawan Prabowo on 06/03/24.
+//  Created by Hermawan Prabowo on 07/03/24.
 //
 
 import SwiftUI
-import URLImage
 import SwiftData
+import URLImage
 
-struct ProductItemRowView: View {
+struct FavoriteItemView: View {
     @Environment(\.modelContext) private var modelContext
 //     @Query static var favoriteData: [FavoriteSwiftData]
     @Query  var localDatas: [FavoriteSwiftData]
     let cellWidth = UIScreen.main.bounds.width/2 - 20
     let cellHeight : CGFloat =  (UIScreen.main.bounds.width/2 - 32) * 1.75
-     var productModel : ProductModel
+     var productModel : FavoriteSwiftData
      var productModelPos : Int
     
     @StateObject
@@ -31,7 +31,7 @@ struct ProductItemRowView: View {
     func getProductItemView() -> some View{
         
        
-        
+        print(productModel.isFavorite as Any)
         return ZStack {
             RoundedRectangle(cornerRadius: 30).frame(width: cellWidth, height: cellHeight, alignment: .center).foregroundColor(Util.getColor(Constants.COLOR_ACCENT_GREEN))
             
@@ -66,7 +66,7 @@ struct ProductItemRowView: View {
                     Spacer()
                 }
                 
-                Text(productModel.description ?? "")
+                Text(productModel.descriptions)
                     .font(.system(size: 12))
                     .fontWeight(.medium)
                     .lineLimit(2)
@@ -97,7 +97,7 @@ struct ProductItemRowView: View {
             VStack {
                 HStack{
                     Spacer()
-                    Image(systemName: (productModel.isFavorite ?? false) ? "heart.fill":"heart")
+                    Image(systemName: (productModel.isFavorite ?? true) ? "heart.fill":"heart")
                         .foregroundColor(.green)
                         
                         .padding(.all, 10)
@@ -129,14 +129,13 @@ struct ProductItemRowView: View {
                 }
                 
                 someVM.objectWillChange.send()
-                print(productModelPos)
-//                productModel.objectWillChange.send()
+                
             }
         }
     }
 }
     
- private func findLocalData(localDatas: [FavoriteSwiftData],productModel: ProductModel,id: Int)  -> Any {
+ private func findLocalData(localDatas: [FavoriteSwiftData],productModel: FavoriteSwiftData,id: Int)  -> Any {
      var res = false
      for localData in localDatas {
         if id == localData.id {
@@ -148,9 +147,9 @@ struct ProductItemRowView: View {
 }
     
 
-private func addItem(productModel : ProductModel, modelContext: ModelContext) {
+private func addItem(productModel : FavoriteSwiftData, modelContext: ModelContext) {
 //        withAnimation {
-    let newItem = FavoriteSwiftData(id: productModel.id, title: productModel.title, descriptions: productModel.description ?? "", price: productModel.price, discountPercentage: productModel.discountPercentage, rating: productModel.rating, stock: productModel.stock, brand: productModel.brand, category: productModel.category, thumbnail: productModel.thumbnail, images: productModel.images,isFavorite: productModel.isFavorite)
+    let newItem = FavoriteSwiftData(id: productModel.id, title: productModel.title, descriptions: productModel.descriptions, price: productModel.price, discountPercentage: productModel.discountPercentage, rating: productModel.rating, stock: productModel.stock, brand: productModel.brand, category: productModel.category, thumbnail: productModel.thumbnail, images: productModel.images,isFavorite: productModel.isFavorite)
         modelContext.insert(newItem)
         do {
             try modelContext.save()
@@ -160,12 +159,13 @@ private func addItem(productModel : ProductModel, modelContext: ModelContext) {
        
     }
 
-private func deleteItems(localDatas: [FavoriteSwiftData], offsets: ProductModel, modelContext: ModelContext) {
+private func deleteItems(localDatas: [FavoriteSwiftData], offsets: FavoriteSwiftData, modelContext: ModelContext) {
 //        withAnimation {
     var i : Int = 0
         for localData in localDatas {
             if offsets.id == localData.id {
-                let row : FavoriteSwiftData = localData;             modelContext.delete(row)
+                let row : FavoriteSwiftData = localData;             
+                modelContext.delete(row)
                 do {
                     try modelContext.save()
                 }catch {
@@ -177,13 +177,7 @@ private func deleteItems(localDatas: [FavoriteSwiftData], offsets: ProductModel,
        }
         
     }
-    
 
-    struct ProductItemRowView_Previews: PreviewProvider {
-        static var previews: some View {
-            Group{
-//                ProductItemRowView(groceryItemModel: LocalDataHandler.productsData[0])
-//                ProductItemRowView(groceryItemModel: LocalDataHandler.productsData[1])
-            }.previewLayout(.fixed(width: 300, height: 270))
-        }
-    }
+//#Preview {
+//    FavoriteItemView()
+//}

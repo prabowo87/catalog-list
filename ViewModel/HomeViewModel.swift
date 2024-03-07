@@ -20,6 +20,9 @@ class HomeViewModel: ObservableObject{
         @Published var currentState: ViewState = .START
         @Published
         var bindingValue: [ProductModel] = []
+        @Published
+        var searchText = ""
+        @Published var allData: [ProductModel] = []
         private var cancelables = Set<AnyCancellable>()
 
         init() {
@@ -38,16 +41,40 @@ class HomeViewModel: ObservableObject{
                 }
             } receiveValue: { response in
                 self.bindingValue = response.products
-                
+                self.allData = response.products
                 self.currentState = .SUCCESS(products: response.products)
                 
             }.store(in: &cancelables)
         
     }
+    func refresh(){
+        getProducts()
+    }
+    func filterContent() {
+            let keywordRegex = "\\b(\\w*" + searchText.lowercased() + "\\w*)\\b"
+
+            if searchText != "" {
+                var matchingCoffees: [ProductModel] = []
+                bindingValue.forEach { coffee in
+                    let searchContent = coffee.title + (coffee.description ?? "")
+                    if searchContent.lowercased().range(of: keywordRegex, options: .regularExpression) != nil {
+                        matchingCoffees.append(coffee)
+                    }
+                }
+                self.bindingValue = matchingCoffees
+                self.currentState = .SUCCESS(products: matchingCoffees)
+                objectWillChange.send()
+            } else {
+                self.bindingValue = allData
+                self.currentState = .SUCCESS(products: allData)
+                objectWillChange.send()
+            }
+        }
     func updateFavorite (position:Int,isFavorite: Bool) {
         self.bindingValue[position].isFavorite = isFavorite
        
     }
+    
     func updateFavoriteId (id:Int,isFavorite: Bool) {
         var idx : Int = 0;
         for data in  self.bindingValue {
@@ -57,7 +84,5 @@ class HomeViewModel: ObservableObject{
             }
             idx+=1
         }
-        
-       
     }
 }
